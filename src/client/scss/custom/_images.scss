@@ -1,0 +1,13 @@
+.selectorActive {
+  background-color: #0a53be;
+  color: #ffffff;
+}
+
+.selectors:active, .selectors:focus {
+  background-color: #0a53be;
+  color: #ffffff;
+}
+.selectors:active option, .selectors:focus option {
+  background-color: #ffffff;
+  color: #000000;
+}

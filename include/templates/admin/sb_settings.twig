@@ -1,0 +1,79 @@
+{% extends 'sb_index.twig' %}
+{% import 'dash_macros.twig' as form %}
+
+{% block body %}
+    {% if verify(user.id, 'view_tiap_settings') %}
+    <div class="row pt-3">
+        <div class="col-6">
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="text-primary float-start">Dash Settings Page</h5>
+                    <a href="{{ site.url }}tasks/clean-db.php" target="_blank" class="btn btn-outline-danger float-end"><i class="fa fa-bomb"></i> </a>
+                </div>
+                <div class="card-body pb-5">
+
+                    <form id="dashSettingsForm" role="form" method="post" action="{{ site.worker }}set-settings.php">
+                        <div class="messages"></div>
+                        <fieldset>
+                            <div class="col">
+                                <div class="form-holder">
+                                    {{ form.label('siteName', "Website Name", {"class": "mb-1 small"}) }}
+                                    {{ form.text('siteName', setting.siteName, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('siteUrl', "Site Url", {"class": "mb-1 small"}) }}
+                                    {{ form.text('siteUrl', setting.siteUrl, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('allowRegister', "Allow Registrations", {"class": "mb-1 small"}) }}
+                                    {{ form.text('allowRegister', setting.allowRegister, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+
+                                <div class="form-holder">
+                                    {{ form.label('debug', "Debug mode", {"class": "mb-1 small"}) }}
+                                    {{ form.text('debug', setting.debug, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-holder">
+                                    {{ form.label('smtpDebug', "Mail Debug mode", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpDebug', setting.smtpDebug, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpEmail', "SMTP Emailer Address", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpEmail', setting.smtpEmail, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpHost', "SMTP Host", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpHost', setting.smtpHost, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpPass', "SMTP Password", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpPass', setting.smtpPass, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpPort', "SMTP Port", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpPort', setting.smtpPort, {"class": "form-control form-control-sm small"}) }}
+                                </div>
+                                <input type="hidden" name="nonce" value="{{ call_nonce('settings-form') }}" />
+                            </div>
+
+                            <button role="button" type="submit" class="btn btn-primary mt-2">Submit Settings</button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+
+        </div>
+    </div>
+    {% else %}
+        {% include 'no_permission.twig'  %}
+    {% endif %}
+
+
+{% endblock body %}
+
+{% block scripts %}
+{% endblock scripts %}

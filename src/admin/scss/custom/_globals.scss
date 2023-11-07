@@ -1,0 +1,29 @@
+
+.counters {
+  font-size: 2rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.counter-text {
+  font-weight: 600;
+}
+
+.hidden {
+  visibility:hidden;
+}
+
+.gone {
+  display:none;
+  visibility: hidden;
+}
+
+.btn-circle {
+  width: 26px;
+  height: 26px;
+  text-align: center;
+  padding: 3px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+  color: #fff;
+}

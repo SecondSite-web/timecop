@@ -1,0 +1,36 @@
+body {
+  overflow-x: hidden;
+}
+
+.hidden {
+  visibility:hidden;
+}
+.gone {
+  display:none;
+  visibility: hidden;
+}
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+.line-selected, .outline-selected, .supplier-selected {
+  background-color: $success;
+  color: white !important;
+}
+.line-selected td, .outline-selected td, .supplier-selected td {
+  color: white !important;
+}
+.nav-active {
+  border: 1px solid #ffffff !important;
+}
+.modal {
+  top:63px !important;
+}
+.highlight {
+  background-color: $yellow-300;
+}

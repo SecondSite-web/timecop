@@ -1,0 +1,74 @@
+{% extends 'sb_index.twig' %}
+{% block body %}
+    {% if verify(user.id, 'edit_user_group_function') %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mt-2 mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Groups List</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                      <table id="dataTable" class="table table-striped table-sm">
+                          <thead>
+                            <tr>
+                                <th>User Groups</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for group in groups %}
+                            <tr>
+                                <td>{{ group|capitalize|e }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mt-2">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Users per Group</h6>
+                </div>
+                <div class="card-body">
+                {% for group in groups %}
+                <h5>{{ group|capitalize|e }}</h5>
+                <div class="table-responsive-sm">
+                    <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th class="col-md-5">Name:</th>
+                            <th class="col-md-5">Email:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {% if group == user.user_group %}
+                            <tr>
+                                <td class="col-md-5">{{ user.firstname|title }} {{ user.lastname|title }}</td>
+                                <td class="col-md-5">{{ user.email }}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="text-center p-5 m-5">
+            <p class="lead mt-5">You do not have permission to view this page. Please contact an Admin</p>
+            <a href="{{ site.url }}" class="btn btn-outline-danger mb-5">Return Home</a>
+        </div>
+    {% endif %}
+{% endblock body %}
+{% block scripts %}
+    <script type="text/javascript" src="{{ site.url|e }}/vendor/datatables/jquery.dataTables.min.js"></script>
+
+
+{% endblock scripts %}

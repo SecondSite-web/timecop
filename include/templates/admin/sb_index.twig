@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{{ site.name }} - {{ page.title }}</title>
+
+    <link href="{{ site.url|e }}admin/css/styles.min.css" rel="stylesheet">
+
+
+    {% block head %}
+
+      {% endblock head %}
+  </head>
+  <body id="page-top" class="page-{{ page.class }} pb-5 mb-5">
+  {% include 'sb_topnav.twig' %}
+    <!-- Page Wrapper -->
+    <div id="wrapper" class="container-fluid overflow-hidden">
+      <div class="row vh-100 overflow-auto">
+      {% include 'sb_sidebar.twig' %}
+
+      <!-- Content Wrapper -->
+      <div id="page-content-wrapper" class="col d-flex flex-column h-sm-100">
+        <div id="omni_error"></div>
+        <!-- Main Content -->
+        <div id="content">
+        {% block body %}
+
+        {% endblock body %}
+        </div>
+        <!-- End of Main Content -->
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright &copy; {{ site.name }} {{ site.year }}</span>
+            </div>
+          </div>
+        </footer>
+        <!-- End of Footer -->
+      </div>
+      <!-- End of Content Wrapper -->
+    </div>
+    </div>
+    <!-- End of Page Wrapper -->
+    <!-- Scroll to Top Button-->
+  {% include 'sb_modal.twig' %}
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  {#
+  <script type="text/javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.colVis.min.js"></script>
+  #}
+
+  <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/dataTables.buttons.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/jszip.min.js"></script>
+
+  <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/buttons.html5.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/buttons.colVis.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}vendor/jquery-validation/jquery.validate.min.js"></script>
+  <script type="text/javascript" src="{{ site.url|e }}admin/js/admin.min.js"></script>
+  {% block scripts %}{% endblock scripts %}
+  </body>
+</html>

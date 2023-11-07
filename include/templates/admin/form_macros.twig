@@ -1,0 +1,29 @@
+{% macro inputHidden(name, value) %}
+    <input type="hidden" name="{{ name }}" value="{{ value }}" />
+{% endmacro inputHidden %}
+
+{% macro input(name, label, placeholder = null, options = []) %}
+    <div class="form-group {{ options.class }}">
+        <input placeholder="{{ placeholder }}" type="{{ name == 'email' ? 'email' : 'text' }}" class="form-control" id="{{ name }}" name="{{ name }}" required="{{ options.require }}">
+    </div>
+{% endmacro input %}
+
+{% macro labelHelp(name, type, label, help, tab, placeholder = null, options = []) %}
+    <label for="{{ name }}" class="form-label">{{ label }}</label>
+    <input type="{{ type }}" class="form-control form-control-sm" id="{{ name }}" name="{{ name }}" aria-describedby="{{ name }}{{ type }}" tabindex="{{ tab }}" {{ require }}>
+    <div id="{{ name }}{{ type }}" class="form-text">{{ help }}</div>
+{% endmacro labelHelp %}
+
+{% macro labelValued(name, type, label, tab, value, options = []) %}
+    <label for="{{ name }}" class="form-label">{{ label }}</label>
+    <input type="{{ type }}" class="form-control" id="{{ name }}" name="{{ name }}" value="{{ value }}" placeholder="{{ value }}" aria-describedby="{{ name }}{{ type }}" tabindex="{{ tab }}" {{ require }}>
+{% endmacro labelValued %}
+
+{% macro submit(class) %}
+<button type="submit" class="btn btn-{{ class }}">Submit</button>
+{% endmacro submit %}
+
+{% macro textarea(name, label) %}
+    <label for="name" class="form-label">{{ label }}</label>
+    <textarea class="form-control" id="{{ name }}" name="{{ name }}" rows="3"></textarea>
+{% endmacro textarea %}

@@ -1,0 +1,70 @@
+{% import 'dash_macros.twig' as form %}
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <form id="logout-form" action="{{ site.worker }}logout.php" method="post" role="form">
+            <button class="btn btn-primary" type="submit" id="submit">Logout</button>
+          </form>
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="newContactModal" tabindex="-1" aria-labelledby="newContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="newContactModalLabel">Add a New Contact</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" role="form" name="addContactForm" id="addContactForm">
+        <div class="modal-body">
+            <div class="messages"></div>
+            <div class="mb-2">
+              {{ form.label('name', "Name", {"class": "form-label small"}) }}
+              {{ form.text('name', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+            <div class="mb-2">
+              {{ form.label('category', "Contact Category", {"class": "form-label small"}) }}
+              {{ form.text('category', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+            <div class="mb-2">
+              {{ form.label('email_address', "Email Address", {"class": "form-label small"}) }}
+              {{ form.text('email_address', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+            <div class="mb-2">
+              {{ form.label('web_site', "Website", {"class": "form-label small"}) }}
+              {{ form.text('web_site', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+
+            <div class="mb-2">
+              {{ form.label('mobile', "Mobile Number", {"class": "form-label small"}) }}
+              {{ form.text('mobile', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+            <div class="mb-2">
+              {{ form.label('home', "Home Phone Number", {"class": "form-label small"}) }}
+              {{ form.text('home', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+            <div class="mb-2">
+              {{ form.label('office', "Office Phone Number", {"class": "form-label small"}) }}
+              {{ form.text('office', '', {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-success" type="submit" role="button">Create Contact</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

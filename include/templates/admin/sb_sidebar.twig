@@ -1,0 +1,26 @@
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-light sticky-top sidebar menus small">
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li>
+      <a href="{{ site.admin }}" class="nav-link link-dark">
+        <i class="fa fa-tachometer-alt"></i> Dashboard
+      </a>
+    </li>
+    {% if verify(user.id, 'view_tiap_settings') %}
+    <li>
+      <a href="{{ site.admin }}settings/" class="nav-link link-dark">
+        <i class="fa fa-gears"></i> Settings
+      </a>
+    </li>
+    {% endif %}
+    <li class="nav-item has-submenu">
+      <a href="#" class="nav-link link-dark">
+        <i class="fa fa-users"></i> Users
+      </a>
+      <ul class="submenu collapse">
+        <li><a class="nav-link link-dark" href="{{ site.admin }}users-table/"><i class="fa fa-user-edit"></i> User Management</a></li>
+        <li><a class="nav-link link-dark" href="{{ site.admin }}user-groups/"><i class="fa fa-user-friends"></i> User Groups</a></li>
+        <li><a class="nav-link link-dark" href="{{ site.admin }}permissions/"><i class="fa fa-user-secret"></i> User Permissions</a></li>
+      </ul>
+    </li>
+   </ul>
+</div>

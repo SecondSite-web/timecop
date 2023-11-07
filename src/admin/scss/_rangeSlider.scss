@@ -1,0 +1,99 @@
+.sliderWithLabels {
+  width: 100%;
+  padding: 39px 0px 0;
+  height: 80px;
+  overflow: hidden;
+  display:none;
+
+  input[type=range] {
+    position: relative;
+    height: 0.5rem;
+    margin-top: 1.25rem;
+    margin-bottom: 2.25rem;
+    background-color: #e6e6e6;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -ms-touch-action: none;
+    touch-action: none;
+    top: -49px;
+    position: relative;
+    -webkit-appearance: none;
+    width: 50%;
+    height: 10px;
+    background: #d3d3d3;
+    outline: none;
+    border-radius: 10px;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: $danger;
+      cursor: pointer;
+      border-radius: 100%;
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: $danger;
+      cursor: pointer;
+    }
+  }
+
+  > div {
+    display: flex;
+    align-items: stretch;
+    height: 20px;
+    margin-top: -6px;
+    position: relative;
+    width: 100%;
+
+    > div {
+      color: white;
+      width: 100px;
+      margin: 0px;
+      text-align: center;
+      line-height: 75px;
+      font-size: 30px;
+      flex: 1;
+      border-right: 1px solid #d3d3d3;
+      border-left: 1px solid #d3d3d3;
+
+      &:first-of-type {
+        border-left: 2px solid #fff;
+      }
+
+      &:last-of-type {
+        border-right: 2px solid #fff;
+      }
+    }
+
+    > span {
+      color: #444;
+      margin: 0px;
+      text-align: center;
+      line-height: 75px;
+      font-size: 15px;
+      flex: 1;
+      font-family: sans-serif;
+    }
+
+    &.step-labels {
+      top: -10px;
+
+      span{
+        cursor: pointer;
+      }
+    }
+
+    &.step-marks {
+      width: 408px !important;
+      margin-left: 19px !important;
+    }
+  }
+}

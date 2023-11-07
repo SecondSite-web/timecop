@@ -1,0 +1,101 @@
+{% extends 'sb_index.twig' %}
+{% import 'dash_macros.twig' as form %}
+
+{% block body %}
+    <div class="row pt-3">
+        <div class="col-6">
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="text-primary">Dash Settings Page</h5>
+                </div>
+                <div class="card-body pb-5">
+                    {% if verify(user.id, 'view_tiap_settings') %}
+                    <form id="dashSettingsForm" role="form" method="post">
+                        <div class="messages"></div>
+                        <fieldset>
+                            <div class="col">
+                                <div class="form-holder">
+                                    {{ form.label('siteName', "Allow Registrations", {"class": "mb-1 small"}) }}
+                                    {{ form.text('siteName', setting.siteName, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('siteUrl', "Site Url", {"class": "mb-1 small"}) }}
+                                    {{ form.text('siteUrl', setting.siteUrl, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('allowRegister', "Allow Registrations", {"class": "mb-1 small"}) }}
+                                    {{ form.text('allowRegister', setting.allowRegister, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('apiDomain', "API Domain", {"class": "mb-1 small"}) }}
+                                    {{ form.text('apiDomain', setting.apiDomain, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('debug', "Debug mode", {"class": "mb-1 small"}) }}
+                                    {{ form.text('debug', setting.debug, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-holder">
+                                    {{ form.label('smtpDebug', "Mail Debug mode", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpDebug', setting.smtpDebug, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpEmail', "SMTP Emailer Address", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpEmail', setting.smtpEmail, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpHost', "SMTP Host", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpHost', setting.smtpHost, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpPass', "SMTP Password", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpPass', setting.smtpPass, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                                <div class="form-holder">
+                                    {{ form.label('smtpPort', "SMTP Port", {"class": "mb-1 small"}) }}
+                                    {{ form.text('smtpPort', setting.smtpPort, {"class": "form-control form-control-sm small", "tab-index": "1"}) }}
+                                </div>
+                            </div>
+
+                            <button role="button" type="submit" class="btn btn-primary mt-2">Submit Settings</button>
+                        </fieldset>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            {# <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="text-primary">Data Management Settings</h5>
+                </div>
+                {% if verify(user.id, 'view_tiap_settings') %}
+                <div class="card-body pb-5">
+                    <h5 class="text-warning">These bulk import fe</h5>
+                    <div id="importMsg"></div>
+                    <button class="btn btn-dark" id="importQuotes" role="button">
+                        <i class="fa fa-file-import"></i> Import Quotes
+                    </button>
+                    <button class="btn btn-dark" id="importOrders" role="button">
+                        <i class="fa fa-file-import"></i> Import Orders
+                    </button>
+                    <button class="btn btn-dark" id="importStock" role="button">
+                        <i class="fa fa-file-import"></i> Stock List Import
+                    </button>
+                </div>
+                {% endif %}
+            </div>  #}
+
+        </div>
+    </div>
+
+
+{% endblock body %}
+
+{% block scripts %}
+
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" src="{{ site.url|e }}vendor/datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/javascript" src="{{ site.url|e }}js/dash-settings.min.js"></script>
+{% endblock scripts %}
