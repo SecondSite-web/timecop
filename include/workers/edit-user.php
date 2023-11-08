@@ -21,18 +21,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $filters = array(
             'user_id'    => 'trim|sanitize_string',
             'session_user_id'    => 'trim|sanitize_string',
-            'firstname'  => 'trim|sanitize_string',
-            'lastname'   => 'trim|sanitize_string',
+            'first_name'  => 'trim|sanitize_string',
+            'last_name'   => 'trim|sanitize_string',
             'phone'      => 'trim|sanitize_string',
             'email'      => 'trim|sanitize_email|lower_case',
             'company_id' => 'trim|sanitize_string',
             'user_group' => 'trim|sanitize_string',
+
         );
         $rules = array(
             'user_id'    => 'required|alpha_numeric|min_len,1|max_len,3',
             'session_user_id'    => 'required|alpha_numeric|min_len,1|max_len,3',
-            'firstname'  => 'required|alpha_numeric|max_len,20',
-            'lastname'   => 'required|alpha_numeric|max_len,20',
+            'first_name'  => 'required|alpha_numeric|max_len,20',
+            'last_name'   => 'required|alpha_numeric|max_len,20',
             'phone'      => 'required|alpha_numeric|max_len,20',
             'email'      => 'required|alpha_numeric|max_len,20|min_len,3',
             'company_id'    => 'required|alpha_numeric|max_len,20',
@@ -62,8 +63,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $email = $_POST['email'];
         $uid = $_POST['user_id'];
         $params = array(
-            'firstname' => $_POST['firstname'],
-            'lastname' => $_POST['lastname'],
+            'first_name' => $_POST['first_name'],
+            'last_name' => $_POST['last_name'],
             'phone' => $_POST['phone'],
             'company_id' => $_POST['company_id'],
             'user_group' => $_POST['user_group']
@@ -87,20 +88,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         $result = $auth->updateUser($uid, $params);
-
-        if ($result['error'] === '1') {
-            throw new Exception($result['message']);
-        }
-
-        $dashAuth->clearUser($uid);
-        if (is_array($_POST['user_group'])) {
-            $postGroups = $_POST['user_group'];
-            foreach ($postGroups as $group) {
-                $dashAuth->saveUserGroup($uid, $group);
-            }
-        } else {
-            $dashAuth->saveUserGroup($uid, $_POST['group_index']);
-        }
 
         $responseArray = array('type' => 'success', 'message' => 'User details updated successfully');
         $log->info($result['message'], array($_POST));

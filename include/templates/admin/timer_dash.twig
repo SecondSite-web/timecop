@@ -1,0 +1,156 @@
+{% extends 'timer_index.twig' %}
+
+{% block body %}
+    {{ dump(statuses) }}
+    {{ dump(tasks) }}
+    <div class="row">
+        <div id="taskPanel" class="col-md-2">
+            <div class="btn-group-vertical w-100" role="group" aria-label="Vertical button group">
+            {% for item in tasks %}
+                <button id="{{ item.task_id }}" class="btn btn-primary taskBtn w-100" type="button">{{ item.task_name|title }}</button>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div id="task-details-wrapper"></div>
+        </div>
+    </div>
+    <button class="btn btn-primary" id="addTaskBtn" role="button"><i class="fa fa-plus-circle"></i> Add Task</button>
+
+    <div id="addTaskModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add a Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form name="add-task-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="task_name" class="form-label">Task Name</label>
+                            <input type="text" class="form-control" id="task_name" name="task_name" aria-describedby="task_nameHelp">
+                            <div id="task_nameHelp" class="form-text">For easy reference.</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Describe the Task" id="description" name="description" style="height: 100px"></textarea>
+                                <label for="description">Comments</label>
+                            </div>
+                        </div>
+                        <input type="hidden" name="action" value="add-task">
+                        <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
+                        <input type="hidden" name="created_by_user_id" value="{{ user.id }}">
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalLabel">Add a New Task</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const render = document.location.origin + "/include/workers/timer/tasks.php";
+
+            // Add a task
+            $('#addTaskBtn').on('click', function() {
+               console.log('Add Task');
+                $('#addTaskModal').modal('show');
+            });
+
+            // Get a Task
+            $('#taskPanel').on('click', '.taskBtn', function (e) {
+                e.preventDefault();
+               let taskId = $(this).attr('id');
+               console.log(taskId);
+
+                $.post(render, {
+                    action: 'get-task',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    task_id: taskId
+                })
+                    .done(function (data) {
+                        let taskDetail = data.task;
+                        console.log(taskDetail);
+                        $('#task-details-wrapper').html(taskDetail);
+                    });
+
+            });
+
+
+            // Global function to submit forms
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            var modalTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="modal"]'));
+            var modalList = modalTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            jQuery(document).submit(function (e) {
+                var form = jQuery(e.target).closest('form');
+                console.log(form);
+                var url = form.attr("action");
+                e.preventDefault();
+                jQuery.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(), // serializes the form's elements.
+                    success: function (data) {
+                        var messageAlert = 'alert-' + data.type;
+                        var messageText = data.message;
+                        var alertBox = '<div class="alert ' + messageAlert + ' alert-dismissible fade show" role="alert">\n' +
+                            '  <strong>Notice! </strong> ' + messageText + '\n' +
+                            '  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>\n' +
+                            '</div>';
+                        if (messageAlert && messageText) {
+                            form.find('.messages').html(alertBox);
+                            form[0].reset();
+                        }
+                        debugger;
+                        if (data.type === 'success') {
+                            var taskId = data.task_id;
+                            reload();
+                        }
+
+                    }
+                });
+            });
+            function reload()
+            {
+                setTimeout(function () {
+                    let location = window.location;
+                    window.location.replace(location);
+                }, 500);
+            }
+        });
+    </script>
+{% endblock scripts %}

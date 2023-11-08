@@ -10,4 +10,5 @@ require_once ROOT_PATH .'include/classes/CustomStore.php';
 require_once ROOT_PATH .'include/classes/Encryption.php';
 
 require_once ROOT_PATH .'include/classes/Companies.php';
+require_once ROOT_PATH .'include/classes/timer/Tasks.php';
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{{ site.name }} - {{ page.title }}</title>
+
+    <link href="{{ site.url|e }}admin/css/styles.min.css" rel="stylesheet">
+
+</head>
+<body id="page-top" class="page-{{ page.class }} pb-5 mb-5">
+<!-- Page Wrapper -->
+<div id="wrapper" class="container-fluid overflow-hidden">
+    <!-- Content Wrapper -->
+    <div id="content">
+        {% block body %}
+
+        {% endblock body %}
+    </div>
+    <!-- End of Main Content -->
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright &copy; {{ site.name }} {{ site.year }}</span>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+<script type="text/javascript" src="{{ site.url|e }}vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/datatables/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/datatables/jszip.min.js"></script>
+
+<script type="text/javascript" src="{{ site.url|e }}vendor/datatables/buttons.html5.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/datatables/buttons.colVis.min.js"></script>
+<script type="text/javascript" src="{{ site.url|e }}vendor/jquery-validation/jquery.validate.min.js"></script>
+{% block scripts %}
+{% endblock scripts %}
+</body>
+</html>

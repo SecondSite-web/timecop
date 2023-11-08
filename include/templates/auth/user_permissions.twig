@@ -4,7 +4,7 @@
 
 {% endblock head %}
 {% block body %}
-    {% if verify(user.id, 'edit_permissions') %}
+    {% if user.user_group == "root" %}
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -63,14 +63,12 @@
                                                                     <div class="optionsList ps-4">
                                                                         {% set group = getGroups(permission.permission_title) %}
                                                                         {% for userGroup in userGroups %}
-                                                                            {% if userGroup != 'root' %}
                                                                             <div class="form-check">
                                                                                 <input class="form-check-input" type="checkbox" value="{{ userGroup|lower|e }}" name="user_group[]" id="user_group" {% for grp in group %}{% if grp.user_group == userGroup %}checked{% endif %}{% endfor %}>
                                                                                 <label class="form-check-label" for="user_group">
                                                                                     {{ userGroup|title|e }}
                                                                                 </label>
                                                                             </div>
-                                                                            {% endif %}
                                                                         {% endfor %}
                                                                     </div>
                                                                 </div>

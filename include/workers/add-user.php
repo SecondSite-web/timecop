@@ -27,7 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             'email'       => 'trim|sanitize_email|lower_case',
             'password'    => 'trim|sanitize_string',
             'repeat_password' => 'trim|sanitize_string',
-            'user_group' => 'trim|sanitize_string|lower_case'
+            'user_group' => 'trim|sanitize_string|lower_case',
+            'company_id' => 'trim|sanitize_string|lower_case',
+
         );
         $rules = array(
             'first_name' => 'required|alpha_numeric|max_len,20',
@@ -37,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             'password'    => 'required|max_len,100|min_len,8',
             'repeat_password' => 'equalsfield,password',
             'user_group' => 'required',
+            'company_id' => 'required',
             'nonce' => 'required'
         );
         $validator = new GUMP();
@@ -72,7 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             'first_name' => $_POST['first_name'],
             'last_name' => $_POST['last_name'],
             'phone' => $_POST['phone'],
-            'user_group' => $_POST['user_group']
+            'user_group' => $_POST['user_group'],
+            'company_id' => $_POST['company_id']
         );
 
         $result = $auth->register(

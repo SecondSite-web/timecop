@@ -47,7 +47,7 @@
                         {% for user in users %}
                             {% if group == user.user_group %}
                             <tr>
-                                <td class="col-md-5">{{ user.firstname|title }} {{ user.lastname|title }}</td>
+                                <td class="col-md-5">{{ user.first_name|title }} {{ user.last_name|title }}</td>
                                 <td class="col-md-5">{{ user.email }}</td>
                             </tr>
                             {% endif %}

@@ -101,6 +101,26 @@ function lock($pdo)
     $dashAuth = new DashAuth($pdo);
     $user = $dashAuth->sessionUser();
     $siteUrl = currentUrl();
+    $timerUrl = $siteUrl."admin/dash/";
+    if ($user === false) {
+        header("Location: ".$siteUrl."");
+        exit;
+    }
+    if ($user['isactive'] === 0) {
+        header("Location: ".$siteUrl."");
+        exit;
+    }
+    if($user['user_group'] !== "root") {
+        header("Location: ".$timerUrl."");
+        exit;
+    }
+}
+
+function lock2($pdo)
+{
+    $dashAuth = new DashAuth($pdo);
+    $user = $dashAuth->sessionUser();
+    $siteUrl = currentUrl();
     if ($user === false) {
         header("Location: ".$siteUrl."");
         exit;

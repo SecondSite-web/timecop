@@ -96,7 +96,7 @@ $twig_globals = [
     'admin' => $siteUrl.'admin/'
 ];
 $twig->addGlobal('site', $twig_globals);
-if (!$auth->isLogged()) {
+if ($auth->isLogged()) {
     $twig->addGlobal('user', $dashAuth->sessionUser());
 }
 /*

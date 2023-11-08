@@ -1,0 +1,7 @@
+[2023-11-07T18:28:18.767371+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["admin"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:45:52.020691+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root","admin"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:47:31.362145+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root","admin"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:47:42.523385+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root","admin"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:48:00.132519+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root","admin"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:48:12.930714+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root"],"nonce":"78423c42b792a40c00e350"}] []
+[2023-11-07T18:49:53.311285+01:00] Permissions.INFO: Successful [{"session_user_id":"1","permission_title":"add_user_function","user_group":["root","admin"],"nonce":"78423c42b792a40c00e350"}] []

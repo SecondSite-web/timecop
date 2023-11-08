@@ -100,13 +100,13 @@ class Install
      * The website Url
      * @var string
      */
-    public string $siteUrl = 'http://local-dash';
+    public string $siteUrl = 'http://timecop';
 
     /**
      * The name of the website of the business
      * @var string
      */
-    public string $siteName = 'Fuelify';
+    public string $siteName = 'Timecop';
 
     /**
      * Import the database connection object
@@ -165,7 +165,7 @@ class Install
         ['site_password_reset_page',  '/admin/reset'],
         ['site_password_reset_page_append_code',  '0'],
         ['site_timezone', 'Africa/Johannesburg'],
-        ['site_url',  'http://local-dash'],
+        ['site_url',  'http://timecop'],
         ['site_language', 'en_GB'],
         ['smtp',  '0'],
         ['smtp_debug',  '0'],
@@ -283,7 +283,8 @@ class Install
             'first_name' => 'Greg',
             'last_name' => 'Schoeman',
             'user_group' => 'root',
-            'phone' => '0799959818'
+            'phone' => '0799959818',
+            'company_id' => 1
         );
         $params['api_key'] = md5Array($params);
 

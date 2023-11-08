@@ -5,13 +5,13 @@
         <i class="fa fa-tachometer-alt"></i> Dashboard
       </a>
     </li>
-    {% if verify(user.id, 'view_tiap_settings') %}
+    {% if user.user_group == "root" %}
     <li>
       <a href="{{ site.admin }}settings/" class="nav-link link-dark">
         <i class="fa fa-gears"></i> Settings
       </a>
     </li>
-    {% endif %}
+
     <li class="nav-item has-submenu">
       <a href="#" class="nav-link link-dark">
         <i class="fa fa-users"></i> Users
@@ -22,5 +22,6 @@
         <li><a class="nav-link link-dark" href="{{ site.admin }}permissions/"><i class="fa fa-user-secret"></i> User Permissions</a></li>
       </ul>
     </li>
+    {% endif %}
    </ul>
 </div>

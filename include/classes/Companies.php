@@ -20,7 +20,7 @@ class Companies
             'vat_number'            => '',
             'primary_email'         => '',
             'primary_phone'         => '',
-            'company_status'                => 'active',
+            'company_status'        => 'active',
             'user_id'               => 1,
             'created_by_user_id'    => 1
         ]

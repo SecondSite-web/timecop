@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                {{ task.task_name|title }}
+            </div>
+            <div class="card-body">
+                <form name="add-task-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="task_name" class="form-label">Task Name</label>
+                            <input value="{{ task.task_name }}" type="text" class="form-control" id="task_name" name="task_name" aria-describedby="task_nameHelp">
+                            <div id="task_nameHelp" class="form-text">For easy reference.</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Describe the Task" id="description" name="description" style="height: 100px">{{ item.description }}</textarea>
+                                <label for="description">Comments</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Task Created at: </strong> {{ task.created_at }}</p>
+                            <p><strong>Task Updated at: </strong> {{ task.updated_at }}</p>
+                        </div>
+                        <input type="hidden" name="action" value="update-task">
+                        <input type="hidden" name="task_status" value="open">
+                        <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
+                        <input type="hidden" name="updated_by_user_id" value="{{ user.id }}">
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {{ dump(task) }}
+    </div>
+</div>
