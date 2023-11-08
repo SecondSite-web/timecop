@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../../../dash-loader.php";
 defined('ROOT_PATH') || exit;
-lock($pdo);
+// lock($pdo);
 
 use Dash\Encryption;
 use PHPAuth\Config as PHPAuthConfig;
@@ -17,7 +17,7 @@ $log->pushHandler(new StreamHandler(ROOT_PATH.'logs/register.log', Logger::INFO)
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     try {
-        $taskId = 0;
+        $task = [];
         $filters = array(
             'task_id' => 'trim|sanitize_string',
             'task_name' => 'trim|sanitize_string',
@@ -25,6 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             'task_status' => 'trim|sanitize_string',
             'action' => 'trim|sanitize_string',
             'created_by_user_id' => 'trim|sanitize_email|lower_case',
+            'updated_by_user_id' => 'trim|sanitize_email|lower_case',
+            'user_id' => 'trim|sanitize_email|lower_case',
+            'session_id' => 'trim|sanitize_email|lower_case',
 
         );
         $rules = array(
@@ -33,6 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             'description' => 'alpha_numeric|max_len,20',
             'task_status' => 'alpha_numeric|max_len,20',
             'created_by_user_id' => 'alpha_numeric|max_len,20|min_len,1',
+            'updated_by_user_id' => 'alpha_numeric|max_len,20|min_len,1',
+            'user_id' => 'alpha_numeric|max_len,20|min_len,1',
+            'session_id' => 'alpha_numeric|max_len,20|min_len,1',
             'action' => 'alpha_numeric|max_len,20|min_len,1',
             'nonce' => 'required'
         );
@@ -50,23 +56,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($nonceTest === false) {
             throw new \Exception('Nonce Test Failed - please refresh the page to submit again');
         }
-
+        $taskDetails = [];
         if($_POST['action'] === "add-task") {
             $taskId = $tasks->save($_POST);
         }
+        if($_POST['action'] === "update-task") {
+            $taskId = $tasks->update($_POST);
+        }
 
         if($_POST['action'] === "get-task") {
-            $task = $tasks->getById($_POST['task_id']);
+            $taskDetails = $tasks->getById($_POST['task_id']);
 
             $values = array(
-                'task' => $task
+                'task' => $taskDetails
             );
             $template = "timer_task.twig";
             $task = $twig->render($template, $values);
         }
 
+        if($_POST['action'] === "start-session") {
+            $task = $tasks->start($_POST['task_id'], $_POST['user_id']);
+        }
+        if($_POST['action'] === "stop-session") {
+            $task = $tasks->stop($_POST['session_id'], $_POST['user_id']);
+        }
 
-        $responseArray = array('type' => 'success', 'message' => 'Message Saved Successfully', 'task' => $task);
+
+        $responseArray = array('type' => 'success', 'message' => 'Message Saved Successfully', 'task' => $task, 'details' => $taskDetails);
         $log->info('Successful', array($_POST));
     } catch (Exception $e) {
         $responseArray = array('type' => 'danger', 'message' => $e->getMessage());

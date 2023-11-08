@@ -2,7 +2,10 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                {{ task.task_name|title }}
+                <h3 class="float-start">{{ task.task_name|title }}</h3>
+                <div id="busy_spinner" class="spinner-border text-success float-end me-3{% if task.open_session == 0 %} hidden{% endif %}" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
             <div class="card-body">
                 <form name="add-task-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
@@ -15,14 +18,21 @@
                         </div>
                         <div class="mb-3">
                             <div class="form-floating">
-                                <textarea class="form-control" placeholder="Describe the Task" id="description" name="description" style="height: 100px">{{ item.description }}</textarea>
+                                <textarea class="form-control" placeholder="Describe the Task" id="description" name="description" style="height: 100px">{{ task.description }}</textarea>
                                 <label for="description">Comments</label>
                             </div>
                         </div>
                         <div class="mb-3">
                             <p><strong>Task Created at: </strong> {{ task.created_at }}</p>
                             <p><strong>Task Updated at: </strong> {{ task.updated_at }}</p>
+                            <p><strong>Task Total Time: </strong> {{ task.total_hours }}h  {{ task.total_minutes }}m </p>
                         </div>
+                        <div class="mb-3">
+
+                        </div>
+                        <input id="session_id" name="session_id" type="hidden" value="{{ task.open_session }}">
+                        <input name="task_id" type="hidden" value="{{ task.task_id }}">
+
                         <input type="hidden" name="action" value="update-task">
                         <input type="hidden" name="task_status" value="open">
                         <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
@@ -31,11 +41,46 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+
+                        <button type="button" class="btn btn-success start_session" {% if task.open_session > 0 %}disabled{% endif %}>Start Session</button>
+                        <button type="button" class="btn btn-danger stop_session" {% if task.open_session == 0 %}disabled{% endif %}>Stop Session</button>
                     </div>
                 </form>
             </div>
         </div>
-        {{ dump(task) }}
+    </div>
+</div>
+<div class="row mt-1 pt-1">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="timer_table">
+                        <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Start</th>
+                            <th>Stop</th>
+                            <th>Hours</th>
+                            <th>Minutes</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in task.sessions|reverse %}
+                            <tr>
+                                <th>{{ item.session_status }}</th>
+                                <th>{{ item.created_at }}</th>
+                                <th>{{ item.updated_at }}</th>
+                                <th>{{ item.hours }}</th>
+                                <th>{{ item.minutes }}</th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

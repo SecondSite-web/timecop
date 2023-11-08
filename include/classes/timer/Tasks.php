@@ -48,14 +48,18 @@ class Tasks
     /**
      * Fetch All records by Status
      * @param $status
+     * @param $userId
      * @return array
      * @throws \Exception
      */
-    public function getByStatus($status): array
+    public function getByStatus($status, $userId): array
     {
         $table = $this->taskTable;
-        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_status=:task_status");
-        $stmt->execute(['task_status' => $status]);
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_status=:task_status AND created_by_user_id=:created_by_user_id");
+        $stmt->execute([
+            'task_status' => $status,
+            'created_by_user_id' => $userId
+        ]);
         $list = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($list as &$item) {
             $item['sessions'] = $this->getTaskSessions($item['task_id']);
@@ -70,6 +74,7 @@ class Tasks
      * Gets a record based on Id
      * @param int $taskId
      * @return mixed
+     * @throws \Exception
      */
     public function getById(int $taskId): mixed
     {
@@ -78,6 +83,16 @@ class Tasks
         $stmt->execute(['task_id' => $taskId]);
         $list = $stmt->fetch(PDO::FETCH_ASSOC);
         $list['sessions'] = $this->getTaskSessions($taskId);
+        $openSessionId = 0;
+        if (!empty($list['sessions'])) {
+            foreach ($list['sessions'] as $item) {
+                if ($item['session_status'] === 'open') {
+                    $openSessionId = $item['session_id'];
+                    break;
+                }
+            }
+        }
+        $list['open_session'] = $openSessionId;
         $totalTime = $this->calculateTotalTime($taskId);
         $list['total_hours'] = $totalTime['total_hours'];
         $list['total_minutes'] = $totalTime['total_minutes'];
@@ -95,7 +110,7 @@ class Tasks
         $table = $this->sessionsTable;
         $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_id=:task_id");
         $stmt->execute(['task_id' => $taskId]);
-        $sessionList = $stmt->fetch(PDO::FETCH_ASSOC);
+        $sessionList = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $updatedSessionList = []; // Initialize an array to store updated sessions
         if($sessionList) {
             foreach ($sessionList as $item) {
@@ -131,17 +146,19 @@ class Tasks
 
         $totalHours = 0;
         $totalMinutes = 0;
+        if ($sessionList) {
+            foreach ($sessionList as $session) {
+                $totalHours += $session['hours'];
+                $totalMinutes += $session['minutes'];
 
-        foreach ($sessionList as $session) {
-            $totalHours += $session['hours'];
-            $totalMinutes += $session['minutes'];
-
-            // If minutes exceed 60, add to hours and adjust minutes
-            if ($totalMinutes >= 60) {
-                $totalHours += intdiv($totalMinutes, 60);
-                $totalMinutes = $totalMinutes % 60;
+                // If minutes exceed 60, add to hours and adjust minutes
+                if ($totalMinutes >= 60) {
+                    $totalHours += intdiv($totalMinutes, 60);
+                    $totalMinutes = $totalMinutes % 60;
+                }
             }
         }
+
 
         return [
             'total_hours' => $totalHours,
@@ -247,21 +264,23 @@ class Tasks
 
     /**
      * Stop a Session
-     * @param int $taskId
+     * @param int $sessionId
+     * @param int $userId
      * @return bool
      */
-    public function stop(int $taskId): bool
+    public function stop(int $sessionId, int $userId): bool
     {
         $status = 'closed';
         $table = $this->sessionsTable;
         $sql = "UPDATE {$table} SET
-                 task_status=?,
+                 session_status=?,
                  updated_by_user_id=?
-                WHERE task_id=?";
+                WHERE session_id=?";
         $stmt= $this->pdo->prepare($sql);
         return $stmt->execute([
             $status,
-            $taskId
+            $userId,
+            $sessionId
         ]);
     }
 
@@ -295,10 +314,11 @@ class Tasks
 
     /**
      * End a Session
-     * @param array $fields
+     * @param int $taskId
+     * @param int $userId
      * @return string|int
      */
-    public function start(array $fields): string|int
+    public function start(int $taskId, int $userId): string|int
     {
         $table = $this->sessionsTable;
         $status = "open";
@@ -308,22 +328,19 @@ class Tasks
                 (
                  task_id, 
                  session_status, 
-                 task_status, 
                  created_by_user_id
                  )
                 VALUES (
                         :task_id, 
-                        :description, 
-                        :task_status,
+                        :session_status, 
                         :created_by_user_id
                         )"
             );
-            $stmt->bindParam(':task_id', $fields['task_id']);
+            $stmt->bindParam(':task_id', $taskId);
             $stmt->bindParam(':session_status', $status);
-            $stmt->bindParam(':task_status', $fields['task_status']);
-            $stmt->bindParam(':created_by_user_id', $fields['created_by_user_id']);
+            $stmt->bindParam(':created_by_user_id', $userId);
             $stmt->execute();
-            return (int) $this->pdo->lastInsertId('task_id');
+            return (int) $this->pdo->lastInsertId('session_id');
         } catch (PDOException $e) {
             return $e->getMessage();
         }

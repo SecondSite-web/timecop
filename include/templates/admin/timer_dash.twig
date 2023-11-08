@@ -1,12 +1,14 @@
 {% extends 'timer_index.twig' %}
 
 {% block body %}
-    {{ dump(statuses) }}
-    {{ dump(tasks) }}
-    <div class="row">
+
+    <div class="row mt-2">
         <div id="taskPanel" class="col-md-2">
+            <input id="task_id" name="task_id" type="hidden" value="0">
+
             <div class="btn-group-vertical w-100" role="group" aria-label="Vertical button group">
-            {% for item in tasks %}
+                <button class="btn btn-primary w-100" id="addTaskBtn" role="button"><i class="fa fa-plus-circle"></i> Add Task</button>
+                {% for item in tasks | reverse %}
                 <button id="{{ item.task_id }}" class="btn btn-primary taskBtn w-100" type="button">{{ item.task_name|title }}</button>
             {% endfor %}
             </div>
@@ -15,7 +17,7 @@
             <div id="task-details-wrapper"></div>
         </div>
     </div>
-    <button class="btn btn-primary" id="addTaskBtn" role="button"><i class="fa fa-plus-circle"></i> Add Task</button>
+
 
     <div id="addTaskModal" class="modal" tabindex="-1">
         <div class="modal-dialog">
@@ -41,8 +43,6 @@
                         <input type="hidden" name="action" value="add-task">
                         <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
                         <input type="hidden" name="created_by_user_id" value="{{ user.id }}">
-
-
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Submit</button>
@@ -53,22 +53,6 @@
         </div>
     </div>
 
-
-
-
-    <div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addTaskModalLabel">Add a New Task</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
 {% endblock body %}
 
 {% block scripts %}
@@ -88,17 +72,85 @@
                let taskId = $(this).attr('id');
                console.log(taskId);
 
+                getTask(taskId);
+            });
+            function getTask(taskId) {
                 $.post(render, {
                     action: 'get-task',
                     nonce: '{{ call_nonce('add-user-form') }}',
-                    task_id: taskId
+                    task_id: taskId,
                 })
                     .done(function (data) {
                         let taskDetail = data.task;
-                        console.log(taskDetail);
-                        $('#task-details-wrapper').html(taskDetail);
+                        let Details = data.details;
+                        $('#task-details-wrapper').empty().append(taskDetail);
+                        $('#task_id').val(taskId);
+                        $('#timer_table').DataTable({
+                            dom: 'Bfrtip',
+                            buttons: [
+                                {
+                                    extend: 'copyHtml5',
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                    exportOptions: {
+                                        columns: [ 0, ':visible' ]
+                                    }
+                                },
+                                {
+                                    extend: 'excelHtml5',
+                                    title: Details.task_name + ' ' + Details.description,
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                    exportOptions: {
+                                        columns: ':visible'
+                                    }
+                                },
+                                {
+                                    extend: 'colvis',
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                }
+                            ]
+                        });
                     });
 
+            }
+
+            $('#task-details-wrapper').on('click', '.start_session', function (e) {
+                e.preventDefault();
+                let taskId = $('#task_id').val();
+                console.log(taskId);
+
+                $.post(render, {
+                    action: 'start-session',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    task_id: taskId,
+                    user_id: '{{ user.id }}'
+                })
+                    .done(function (data) {
+                        $('#session_id').val(data.task);
+                        $('.start_session').prop("disabled", true);
+                        $('.stop_session').prop("disabled", false);
+                        $('#busy_spinner').removeClass('hidden');
+                        getTask(taskId);
+                    });
+            });
+
+            $('#task-details-wrapper').on('click', '.stop_session', function (e) {
+                e.preventDefault();
+                let sessionId = $('#session_id').val();
+                let taskId = $('#task_id').val();
+                console.log('session_id =>' + sessionId);
+
+                $.post(render, {
+                    action: 'stop-session',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    session_id: sessionId,
+                    user_id: '{{ user.id }}'
+                })
+                    .done(function (data) {
+                        $('.start_session').prop("disabled", false);
+                        $('.stop_session').prop("disabled", true);
+                        $('#busy_spinner').addClass('hidden');
+                        getTask(taskId);
+                    });
             });
 
 
@@ -135,9 +187,8 @@
                             form.find('.messages').html(alertBox);
                             form[0].reset();
                         }
-                        debugger;
                         if (data.type === 'success') {
-                            var taskId = data.task_id;
+                            $('#addTaskModal').modal('hide');
                             reload();
                         }
 
@@ -146,10 +197,8 @@
             });
             function reload()
             {
-                setTimeout(function () {
-                    let location = window.location;
-                    window.location.replace(location);
-                }, 500);
+                let location = window.location;
+                window.location.replace(location);
             }
         });
     </script>

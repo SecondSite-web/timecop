@@ -1,24 +1,32 @@
 <?php
+
+use Dash\DashAuth;
+
 require_once __DIR__ .'/dash-loader.php';
 
-// Get the requested URI
-if (isset($_SERVER['REQUEST_URI'])) {
-    $request = trim($_SERVER['REQUEST_URI']);
+$dashAuth = new DashAuth($pdo);
+$user = $dashAuth->sessionUser();
+$siteUrl = currentUrl();
+$timerUrl = $siteUrl."admin/dash/";
+$adminUrl = $siteUrl."admin/";
+
+if ($user === false) {
+    $template = "user_login.twig";
+
+    $values = array(
+        'page' => array(
+            'title' => "Home",
+            'description' => "Home Page Description",
+            'class' => "home",
+            'pic' => 'site-img.png'
+        )
+    );
+
+    echo $twig->render($template, $values);
+} else if($user['user_group'] !== "root") {
+    header("Location: ".$timerUrl."");
+    exit;
 } else {
-    $request = '/';
+    header("Location: ".$adminUrl."");
+    exit;
 }
-
-
-$template = "user_login.twig";
-
-$values = array(
-    'page' => array(
-        'title' => "Home",
-        'description' => "Home Page Description",
-        'class' => "home",
-        'pic' => 'site-img.png'
-    )
-);
-
-echo $twig->render($template, $values);
-
