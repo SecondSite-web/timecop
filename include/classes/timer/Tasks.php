@@ -12,14 +12,17 @@ class Tasks
     private object $pdo;
     private string $taskTable = 'timecop_tasks';
     private string $sessionsTable = 'timecop_sessions';
+    private string $projectsTable = 'timecop_projects';
     private array $statuses = ['open', 'closed', 'inactive'];
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+
         if (!$this->pdo->query("SHOW TABLES LIKE '{$this->taskTable}'")->fetchAll()) {
             $this->createTable();
             $this->createSessionsTable();
+            $this->createProjectsTable();
         }
         date_default_timezone_set('Africa/Johannesburg');
     }
@@ -45,25 +48,18 @@ class Tasks
         $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Fetch All records by Status
-     * @param $status
-     * @param $userId
-     * @return array
-     * @throws \Exception
-     */
-    public function getByStatus($status, $userId): array
+    public function getProjectsByStatus($status, $userId): array
     {
-        $table = $this->taskTable;
-        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_status=:task_status AND created_by_user_id=:created_by_user_id");
+        $table = $this->projectsTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE status=:status AND created_by_user_id=:created_by_user_id");
         $stmt->execute([
-            'task_status' => $status,
+            'status' => $status,
             'created_by_user_id' => $userId
         ]);
         $list = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($list as &$item) {
-            $item['sessions'] = $this->getTaskSessions($item['task_id']);
-            $totalTime = $this->calculateTotalTime($item['task_id']);
+            $item['sessions'] = $this->getProjectSessions($item['project_id']);
+            $totalTime = $this->calculateTotalTime($item['sessions']);
             $item['total_hours'] = $totalTime['total_hours'];
             $item['total_minutes'] = $totalTime['total_minutes'];
         }
@@ -71,7 +67,98 @@ class Tasks
     }
 
     /**
-     * Gets a record based on Id
+     * Fetch All records by Status
+     * @param $status
+     * @param $userId
+     * @param $projectId
+     * @return array
+     * @throws \Exception
+     */
+    public function getByStatus($status, $userId, $projectId): array
+    {
+        $table = $this->taskTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_status=:task_status
+                      AND created_by_user_id=:created_by_user_id
+                      AND project_id=:project_id");
+        $stmt->execute([
+            'task_status' => $status,
+            'created_by_user_id' => $userId,
+            'project_id' => $projectId
+        ]);
+        $list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($list as &$item) {
+            $item['sessions'] = $this->getTaskSessions($item['task_id']);
+            $totalTime = $this->calculateTotalTime($item['sessions']);
+            $item['total_hours'] = $totalTime['total_hours'];
+            $item['total_minutes'] = $totalTime['total_minutes'];
+        }
+        return $list;
+    }
+
+
+
+    /**
+     * Get detailed task list of all tasks in a project
+     * @param int $projectId
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getTasksByProjectId(int $projectId): mixed
+    {
+        $table = $this->taskTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE project_id=:project_id");
+        $stmt->execute(['project_id' => $projectId]);
+        $taskList = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($taskList) {
+            $results = [];
+            foreach ($taskList as $item) {
+                $task = $this->getById($item['task_id']);
+                $results[]= $task;
+            }
+            return $results;
+        } else {
+            return false;
+        }
+    }
+    public function getProjectById(int $projectId): mixed
+    {
+        $table = $this->projectsTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE project_id=:project_id");
+        $stmt->execute(['project_id' => $projectId]);
+        $list = $stmt->fetch(PDO::FETCH_ASSOC);
+        $list['sessions'] = $this->getProjectSessions($projectId);
+        $openSessionId = 0;
+        if (!empty($list['sessions'])) {
+            foreach ($list['sessions'] as $item) {
+                if ($item['session_status'] === 'open') {
+                    $openSessionId = $item['session_id'];
+                    break;
+                }
+            }
+        }
+        $list['open_session'] = $openSessionId;
+        $totalTime = $this->calculateTotalTime($list['sessions']);
+        $list['total_hours'] = $totalTime['total_hours'];
+        $list['total_minutes'] = $totalTime['total_minutes'];
+        return $list;
+    }
+
+    public function getTaskById($taskId) {
+        $table = $this->taskTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_id=:task_id");
+        $stmt->execute(['task_id' => $taskId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getProject($projectId) {
+        $table = $this->projectsTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE project_id=:project_id");
+        $stmt->execute(['project_id' => $projectId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Gets a Task record based on Id
      * @param int $taskId
      * @return mixed
      * @throws \Exception
@@ -82,6 +169,7 @@ class Tasks
         $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_id=:task_id");
         $stmt->execute(['task_id' => $taskId]);
         $list = $stmt->fetch(PDO::FETCH_ASSOC);
+        $taskName = $list['task_name'];
         $list['sessions'] = $this->getTaskSessions($taskId);
         $openSessionId = 0;
         if (!empty($list['sessions'])) {
@@ -93,7 +181,7 @@ class Tasks
             }
         }
         $list['open_session'] = $openSessionId;
-        $totalTime = $this->calculateTotalTime($taskId);
+        $totalTime = $this->calculateTotalTime($list['sessions']);
         $list['total_hours'] = $totalTime['total_hours'];
         $list['total_minutes'] = $totalTime['total_minutes'];
         return $list;
@@ -111,6 +199,25 @@ class Tasks
         $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE task_id=:task_id");
         $stmt->execute(['task_id' => $taskId]);
         $sessionList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->updateSessionList($sessionList);
+    }
+
+    /**
+     * Get all sessions for a project with time calculations
+     * @param $projectId
+     * @return array
+     */
+    public function getProjectSessions($projectId): array
+    {
+        $table = $this->sessionsTable;
+        $stmt = $this->pdo->prepare("SELECT * FROM {$table} WHERE project_id=:project_id");
+        $stmt->execute(['project_id' => $projectId]);
+        $sessionList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->updateSessionList($sessionList);
+    }
+
+    public function updateSessionList($sessionList): array
+    {
         $updatedSessionList = []; // Initialize an array to store updated sessions
         if($sessionList) {
             foreach ($sessionList as $item) {
@@ -128,22 +235,16 @@ class Tasks
                 $updatedSessionList[] = $item;
             }
         }
-
-
         return $updatedSessionList;
     }
 
     /**
-     * Calculates the total time of a task
-     * @param $taskId
+     * Calculate total time for a session list
+     * @param $sessionList
      * @return array
-     * @throws \Exception
      */
-    public function calculateTotalTime($taskId): array
+    public function calculateTotalTime($sessionList): array
     {
-        // Get the list of sessions for the task
-        $sessionList = $this->getTaskSessions($taskId);
-
         $totalHours = 0;
         $totalMinutes = 0;
         if ($sessionList) {
@@ -183,21 +284,39 @@ class Tasks
     /**
      * Delete a record from the database
      * @param int $taskId
-     * @param int $userId
      * @return bool
      */
-    public function delete(int $taskId, int $userId): bool
+    public function deleteTask(int $taskId): bool
     {
-        $status = 'inactive';
-        $table = $this->taskTable;
-        $sql = "UPDATE {$table} SET
-                 task_status=?,
-                 updated_by_user_id=?
-                WHERE task_id=?";
+        $result1 = $this->deleteTaskSessions($taskId);
+        $result2 = $this->delete($taskId);
+        if($result1 && $result2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param int $taskId
+     * @return bool
+     */
+    public function deleteTaskSessions(int $taskId): bool
+    {
+        $table = $this->sessionsTable;
+        $sql = "DELETE FROM {$table} WHERE task_id=?";
         $stmt= $this->pdo->prepare($sql);
         return $stmt->execute([
-            $status,
-            $userId,
+            $taskId
+        ]);
+    }
+
+    public function delete(int $taskId): bool
+    {
+        $table = $this->taskTable;
+        $sql = "DELETE FROM {$table} WHERE task_id=?";
+        $stmt= $this->pdo->prepare($sql);
+        return $stmt->execute([
             $taskId
         ]);
     }
@@ -205,9 +324,9 @@ class Tasks
     /**
      * Update a database record with timestamp
      * @param array $values
-     * @return bool
+     * @return int
      */
-    public function update(array $values): bool
+    public function update(array $values): int
     {
         $table = $this->taskTable;
         $sql = "UPDATE {$table} SET 
@@ -217,12 +336,37 @@ class Tasks
                  updated_by_user_id=?
                 WHERE task_id=?";
         $stmt= $this->pdo->prepare($sql);
-        return $stmt->execute([
+        $result = $stmt->execute([
             $values['task_name'],
             $values['description'],
             $values['task_status'],
             $values['updated_by_user_id'],
             $values['task_id']
+        ]);
+        if($result) {
+            return $values['task_id'];
+        }
+    }
+
+    /**
+     * Update a project
+     * @param array $values
+     * @return bool
+     */
+    public function updateProject(array $values): bool
+    {
+        $table = $this->projectsTable;
+        $sql = "UPDATE {$table} SET 
+                 project_name=?,
+                 description=?,
+                 updated_by_user_id=?
+                WHERE project_id=?";
+        $stmt= $this->pdo->prepare($sql);
+        return $stmt->execute([
+            $values['project_name'],
+            $values['description'],
+            $values['updated_by_user_id'],
+            $values['project_id']
         ]);
     }
 
@@ -239,19 +383,22 @@ class Tasks
             $stmt = $this->pdo->prepare(
                 "INSERT INTO {$table} 
                 (
-                 task_name, 
+                 task_name,
+                 project_id,
                  description, 
                  task_status, 
                  created_by_user_id
                  )
                 VALUES (
-                        :task_name, 
+                        :task_name,
+                        :project_id,
                         :description, 
                         :task_status,
                         :created_by_user_id
                         )"
             );
             $stmt->bindParam(':task_name', $fields['task_name']);
+            $stmt->bindParam(':project_id', $fields['project_id']);
             $stmt->bindParam(':description', $fields['description']);
             $stmt->bindParam(':task_status', $status);
             $stmt->bindParam(':created_by_user_id', $fields['created_by_user_id']);
@@ -284,19 +431,7 @@ class Tasks
         ]);
     }
 
-    /**
-     * @param int $taskId
-     * @return bool
-     */
-    public function deleteTaskSessions(int $taskId): bool
-    {
-        $table = $this->sessionsTable;
-        $sql = "DELETE FROM {$table} WHERE task_id=?";
-        $stmt= $this->pdo->prepare($sql);
-        return $stmt->execute([
-            $taskId
-        ]);
-    }
+
 
     /**
      * @param int $sessionId
@@ -312,14 +447,47 @@ class Tasks
         ]);
     }
 
+    public function addProject(array $values): string|int
+    {
+        $table = $this->projectsTable;
+        $status = "open";
+        try {
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO {$table} 
+                (
+                 project_name, 
+                 description, 
+                 status, 
+                 created_by_user_id
+                 )
+                VALUES (
+                        :project_name, 
+                        :description, 
+                        :status, 
+                        :created_by_user_id
+                        )"
+            );
+            $stmt->bindParam(':project_name', $values["project_name"]);
+            $stmt->bindParam(':description', $values["description"]);
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':created_by_user_id', $values["created_by_user_id"]);
+            $stmt->execute();
+            return (int) $this->pdo->lastInsertId('session_id');
+        } catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+
     /**
-     * End a Session
+     * Start a Session
      * @param int $taskId
      * @param int $userId
+     * @param int $projectId
      * @return string|int
      */
-    public function start(int $taskId, int $userId): string|int
+    public function start(int $taskId, int $userId, int $projectId): string|int
     {
+        $task = $this->getTaskById($taskId);
         $table = $this->sessionsTable;
         $status = "open";
         try {
@@ -327,17 +495,23 @@ class Tasks
                 "INSERT INTO {$table} 
                 (
                  task_id, 
+                 project_id, 
                  session_status, 
+                 session_name, 
                  created_by_user_id
                  )
                 VALUES (
                         :task_id, 
+                        :project_id, 
                         :session_status, 
+                        :session_name, 
                         :created_by_user_id
                         )"
             );
             $stmt->bindParam(':task_id', $taskId);
+            $stmt->bindParam(':project_id', $projectId);
             $stmt->bindParam(':session_status', $status);
+            $stmt->bindParam(':session_name', $task['task_name']);
             $stmt->bindParam(':created_by_user_id', $userId);
             $stmt->execute();
             return (int) $this->pdo->lastInsertId('session_id');
@@ -352,6 +526,7 @@ class Tasks
         try {
             $sql ="CREATE TABLE IF NOT EXISTS $table (
                 `task_id` int(20) NOT NULL AUTO_INCREMENT,
+                `project_id` int(20) NOT NULL,
                 `task_name` varchar(255) NULL,
                 `description` varchar(255) NULL,
                 `task_status` varchar(255) NULL,             
@@ -374,13 +549,37 @@ class Tasks
         try {
             $sql ="CREATE TABLE IF NOT EXISTS $table (
                 `session_id` int(20) NOT NULL AUTO_INCREMENT,
-                `task_id` varchar(255) NULL,
+                `task_id` int(255) NULL,
+                `project_id` int(255) NULL,
                 `session_status` varchar(255) NULL,             
+                `session_name` varchar(255) NULL,             
                 `created_by_user_id` int(10) NOT NULL,                
                 `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,           
                 `updated_by_user_id` int(10) NULL,
                 `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`session_id`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;" ;
+            $this->pdo->exec($sql);
+            return $table;
+        } catch (PDOException $e) {
+            echo $e->getMessage();//Remove or change message in production code
+        }
+    }
+
+    public function createProjectsTable(): string
+    {
+        $table = $this->projectsTable;
+        try {
+            $sql ="CREATE TABLE IF NOT EXISTS $table (
+                `project_id` int(20) NOT NULL AUTO_INCREMENT,
+                `project_name` varchar(255) NULL,
+                `description` varchar(255) NULL,             
+                `status` varchar(255) NULL,             
+                `created_by_user_id` int(10) NOT NULL,                
+                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,           
+                `updated_by_user_id` int(10) NULL,
+                `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`project_id`)
               ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;" ;
             $this->pdo->exec($sql);
             return $table;

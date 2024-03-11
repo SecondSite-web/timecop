@@ -100,7 +100,7 @@ class Install
      * The website Url
      * @var string
      */
-    public string $siteUrl = 'http://timecop';
+    public string $siteUrl = 'http://timecop.co.za';
 
     /**
      * The name of the website of the business
@@ -165,7 +165,7 @@ class Install
         ['site_password_reset_page',  '/admin/reset'],
         ['site_password_reset_page_append_code',  '0'],
         ['site_timezone', 'Africa/Johannesburg'],
-        ['site_url',  'http://timecop'],
+        ['site_url',  'http://timecop.co.za'],
         ['site_language', 'en_GB'],
         ['smtp',  '0'],
         ['smtp_debug',  '0'],

@@ -8,31 +8,35 @@
     <meta name="author" content="">
     <meta name="robots" content="noindex, nofollow" />
     <title>{{ site.name }} - {{ page.title }}</title>
-
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ site.url|e }}apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site.url|e }}favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ site.url|e }}favicon-16x16.png">
+    <link rel="manifest" href="{{ site.url|e }}site.webmanifest">
     <link href="{{ site.url|e }}admin/css/styles.min.css" rel="stylesheet">
-
+    {% block head %}
+    {% endblock head %}
 </head>
 <body id="page-top" class="page-{{ page.class }} pb-5 mb-5 bg-dark">
 <!-- Page Wrapper -->
-<div id="wrapper" class="container overflow-hidden">
-    <!-- Content Wrapper -->
-    <div id="content" style="min-height: 80vh;">
-        {% block body %}
+<div id="wrapper" class="container-fluid">
+    <div class="row">
 
-        {% endblock body %}
+        {% include 'dash_sidebar.twig' %}
+        <div id="content-wrapper" class="col d-flex flex-column h-sm-100">
+            <!-- Content Wrapper -->
+            <div id="content" style="min-height: 80vh;">
+                {% block body %}
+
+                {% endblock body %}
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+        </div>
     </div>
-    <!-- End of Main Content -->
-    <!-- Footer -->
 
 
 </div>
-<footer class="sticky-footer bg-secondary">
-    <div class="container-fluid my-auto">
-        <div class="copyright text-center my-auto p-3">
-            <span>Copyright &copy; {{ site.name }} {{ site.year }}</span>
-        </div>
-    </div>
-</footer>
+
 <script type="text/javascript" src="{{ site.url|e }}vendor/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="{{ site.url|e }}vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/jquery.dataTables.min.js"></script>
@@ -43,6 +47,16 @@
 <script type="text/javascript" src="{{ site.url|e }}vendor/datatables/buttons.colVis.min.js"></script>
 <script type="text/javascript" src="{{ site.url|e }}vendor/jquery-validation/jquery.validate.min.js"></script>
 {% block scripts %}
+
 {% endblock scripts %}
+<script type="text/javascript">
+    $(document).ready(function (e) {
+        $('.sidebar-link').on('click', function(){
+            $('.sidebar-link').removeClass('bg-primary');
+
+            $(this).addClass('bg-primary');
+        });
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,86 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-dark text-light">
+                <h3 class="float-start">Project: {{ project.project_name|title }}</h3>
+                <div id="busy_spinner" class="spinner-border text-success float-end me-3{% if project.open_session == 0 %} hidden{% endif %}" role="status">
+                    <span class="visually-hidden">Currently Running...</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form name="update-project-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="project_name" class="form-label">Project Name</label>
+                            <input value="{{ project.project_name }}" type="text" class="form-control" id="project_name" name="project_name" aria-describedby="project_nameHelp">
+                            <div id="project_nameHelp" class="form-text">For easy reference.</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Describe the Project" id="description" name="description" style="height: 100px">{{ project.description }}</textarea>
+                                <label for="description">Comments</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Task Created at: </strong> {{ project.created_at }}</p>
+                            <p><strong>Task Updated at: </strong> {{ project.updated_at }}</p>
+                            <p><strong>Task Total Time: </strong> {{ project.total_hours }}h  {{ project.total_minutes }}m </p>
+                        </div>
+                        <div class="mb-3">
+
+                        </div>
+                        <input id="session_id" name="session_id" type="hidden" value="{{ project.open_session }}">
+                        <input name="project_id" type="hidden" value="{{ project.project_id }}">
+
+                        <input type="hidden" name="action" value="update-project">
+                        <input type="hidden" name="status" value="open">
+                        <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
+                        <input type="hidden" name="updated_by_user_id" value="{{ user.id }}">
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-1 pt-1">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="timer_table">
+                        <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Start</th>
+                            <th>Stop</th>
+                            <th>Hours</th>
+                            <th>Minutes</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for item in project.sessions|reverse %}
+                            <tr>
+                                <th>{{ item.session_name }}</th>
+                                <th>{{ item.session_status }}</th>
+                                <th>{{ item.created_at }}</th>
+                                <th>{{ item.updated_at }}</th>
+                                <th>{{ item.hours }}</th>
+                                <th>{{ item.minutes }}</th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

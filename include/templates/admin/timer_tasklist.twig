@@ -1,0 +1,31 @@
+<ul id="taskbar" class="nav nav-pills flex-column flex-shrink-0 p-2 mb-auto small">
+    <li>
+        <div class="h4 text-light text-center">
+            Tasks
+        </div>
+    </li>
+    <li>
+        <div class="text-light">
+            <hr />
+        </div>
+    </li>
+    <li>
+        <div id="addTaskBtn" class="nav-link link-light addTaskBtn">
+            <i class="fa fa-plus-circle"></i> Add Task
+        </div>
+    </li>
+    {% for item in tasks | reverse %}
+        <li>
+            <div id="{{ item.task_id }}" class="nav-link link-light taskBtn taskBtnLink">
+                {{ item.task_name|title }}
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+<script>
+    $('.taskBtnLink').on('click', function(){
+        $('.taskBtnLink').removeClass('bg-success');
+
+        $(this).addClass('bg-success');
+    });
+</script>

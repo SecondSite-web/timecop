@@ -1,0 +1,32 @@
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-dark menus small">
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li>
+            <div class="h4 text-light text-center">
+                Projects
+            </div>
+        </li>
+        <li>
+            <div class="text-light">
+                <hr />
+            </div>
+        </li>
+        <li>
+            <div id="addProjectBtn" class="nav-link link-light addProjectBtn">
+                <i class="fa fa-plus-circle"></i> Add Project
+            </div>
+        </li>
+        {% for item in projects | reverse %}
+            <li>
+                <div id="{{ item.project_id }}" class="nav-link sidebar-link link-light projectBtn">
+                    {{ item.project_name|title }}
+                </div>
+            </li>
+        {% endfor %}
+        <li>
+            <div id="collapse-list" class="text-center">
+                <i class="fa fa-recycle"></i>
+            </div>
+        </li>
+
+    </ul>
+</div>

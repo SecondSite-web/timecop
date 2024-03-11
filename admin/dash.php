@@ -18,8 +18,8 @@ $values = array(
         'class' => "dashboard",
         'pic' => ''
     ),
+    'projects' => $tasks->getProjectsByStatus('open', $user['id']),
     'statuses' => $tasks->getStatuses(),
-    'tasks' => $tasks->getByStatus('open', $user['id'])
 );
 
 echo $twig->render($template, $values);

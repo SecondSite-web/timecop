@@ -125,10 +125,6 @@ function lock2($pdo)
         header("Location: ".$siteUrl."");
         exit;
     }
-    if ($user['isactive'] === 0) {
-        header("Location: ".$siteUrl."");
-        exit;
-    }
 }
 
 function array_to_json($array): bool|string

@@ -9,12 +9,17 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>{{ site.name }} - {{ page.title }}</title>
 
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ site.url|e }}apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site.url|e }}favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ site.url|e }}favicon-16x16.png">
+    <link rel="manifest" href="{{ site.url|e }}site.webmanifest">
+
     <link href="{{ site.url|e }}admin/css/styles.min.css" rel="stylesheet">
 
 
     {% block head %}
 
-      {% endblock head %}
+    {% endblock head %}
   </head>
   <body id="page-top" class="page-{{ page.class }} pb-5 mb-5">
   {% include 'sb_topnav.twig' %}

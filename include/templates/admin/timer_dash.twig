@@ -1,20 +1,52 @@
 {% extends 'timer_index.twig' %}
-
+{% block head %}
+<style>
+    #sidebar .nav-link {
+        cursor: pointer;
+    }
+    #sidebar .nav-link:hover {
+        background-color: #0a53be;
+    }
+    #taskbar .nav-link {
+        cursor: pointer;
+    }
+    #taskbar .nav-link:hover {
+        background-color: #0a53be;
+    }
+    #icon-wrapper {
+        display: flex;
+        justify-content: center; /* Optional: horizontally center the icon */
+        align-items: center; /* Vertically center the icon */
+        height: 100vh; /* Set the height if vh-100 isn't working as intended */
+    }
+    #icon-wrapper i {
+        font-size: 15em;
+        color: #47484d;;
+    }
+</style>
+{% endblock head %}
 {% block body %}
 
     <div class="row mt-2">
-        <div id="taskPanel" class="col-md-2">
+        <div id="taskPanel">
+            <input id="project_id" name="project_id" type="hidden" value="0">
             <input id="task_id" name="task_id" type="hidden" value="0">
-
-            <div class="btn-group-vertical w-100" role="group" aria-label="Vertical button group">
-                <button class="btn btn-primary w-100" id="addTaskBtn" role="button"><i class="fa fa-plus-circle"></i> Add Task</button>
-                {% for item in tasks | reverse %}
-                <button id="{{ item.task_id }}" class="btn btn-primary taskBtn w-100" type="button">{{ item.task_name|title }}</button>
-            {% endfor %}
-            </div>
         </div>
-        <div class="col-md-10">
-            <div id="task-details-wrapper"></div>
+        <div id="taskListPanel" class="col-md-2">
+            <div id="button-wrapper"></div>
+
+        </div>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-12">
+                    <i style="cursor: pointer" id="logout-btn" class="float-end text-secondary fa fa-door-closed" data-bs-toggle="tooltip" data-bs-placement="bottom" title="logout"></i>
+                </div>
+            </div>
+            <div id="task-details-wrapper">
+                <div id="icon-wrapper" class="text-center p-5 m-5">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -45,8 +77,63 @@
                         <input type="hidden" name="created_by_user_id" value="{{ user.id }}">
                     </div>
                     <div class="modal-footer">
+                        <button type="button" id="addTaskModalSubmit" class="btn btn-primary">Submit</button>
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="addProjectModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add a Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form name="add-project-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="task_name" class="form-label">Project Name</label>
+                            <input type="text" class="form-control" id="project_name" name="project_name" aria-describedby="project_nameHelp">
+                            <div id="project_nameHelp" class="form-text">For easy reference.</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Describe the Task" id="description" name="description" style="height: 100px"></textarea>
+                                <label for="description">Comments</label>
+                            </div>
+                        </div>
+                        <input type="hidden" name="action" value="add-project">
+                        <input type="hidden" name="nonce" value="{{ call_nonce('add-user-form') }}">
+                        <input type="hidden" name="created_by_user_id" value="{{ user.id }}">
+                    </div>
+                    <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Submit</button>
                         <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteTaskModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete this Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form name="add-project-form" method="post" action="{{ site.url|e }}include/workers/timer/tasks.php">
+                    <div class="modal-body text-lg-center">
+                        <p class="text-warning">Are you sure you wish to delete this task?</p>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button id="deleteTaskConfirmBtn" type="button" class="btn btn-primary">Yes</button>
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">No</button>
                     </div>
                 </form>
             </div>
@@ -61,13 +148,94 @@
             const render = document.location.origin + "/include/workers/timer/tasks.php";
 
             // Add a task
-            $('#addTaskBtn').on('click', function() {
+            $('#button-wrapper').on('click', '.addTaskBtn', function() {
                console.log('Add Task');
                 $('#addTaskModal').modal('show');
+                $('#task_name').focus();
             });
 
+            $('#task-details-wrapper').on('click', '.deleteTaskBtn', function() {
+                console.log('Delete Task');
+                $('#deleteTaskModal').modal('show');
+            });
+            $('#addProjectBtn').on('click', function() {
+                console.log('Add Project');
+                $('#addProjectModal').modal('show');
+                $('#project_name').focus();
+            });
+
+            function getTaskList(projectId) {
+                $.post(render, {
+                    action: 'get-task-list',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    project_id: projectId,
+                    user_id: '{{ user.id }}'
+                })
+                    .done(function (data) {
+                        let taskDetail = data.task;
+                        $('#button-wrapper').empty().append(taskDetail);
+                    });
+            }
+            $('#sidebar').on('click', '.projectBtn', function (e) {
+                e.preventDefault();
+                let projectId = $(this).attr('id');
+                console.log(projectId);
+
+                getProject(projectId);
+            });
+            function getProject(projectId) {
+                $.post(render, {
+                    action: 'get-project',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    project_id: projectId,
+                })
+                    .done(function (data) {
+                        let Details;
+                        let taskDetail;
+                        taskDetail = data.task;
+
+                        if (data.details) {
+                            Details = data.details;
+                        } else {
+                            Details = {
+                                task_name: "Timer Task",
+                                description: "View task"
+                            };
+                        }
+                        $('#task-details-wrapper').empty().append(taskDetail);
+                        $('#project_id').val(projectId);
+                        getTaskList(projectId);
+                        debugger;
+                        $('#timer_table').DataTable({
+                            dom: 'Bfrtip',
+                            buttons: [
+                                {
+                                    extend: 'copyHtml5',
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                    exportOptions: {
+                                        columns: [ 0, ':visible' ]
+                                    }
+                                },
+                                {
+                                    extend: 'excelHtml5',
+                                    title: Details.project_name + ' ' + Details.description,
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                    exportOptions: {
+                                        columns: ':visible'
+                                    }
+                                },
+                                {
+                                    extend: 'colvis',
+                                    attr: {class: 'btn btn-success btn-sm'},
+                                }
+                            ]
+                        });
+                    });
+
+            }
+
             // Get a Task
-            $('#taskPanel').on('click', '.taskBtn', function (e) {
+            $('#taskListPanel').on('click', '.taskBtn', function (e) {
                 e.preventDefault();
                let taskId = $(this).attr('id');
                console.log(taskId);
@@ -81,10 +249,22 @@
                     task_id: taskId,
                 })
                     .done(function (data) {
-                        let taskDetail = data.task;
-                        let Details = data.details;
+                        let Details;
+                        let taskDetail;
+                        taskDetail = data.task;
+
+                        if (data.details) {
+                            Details = data.details;
+                        } else {
+                            Details = {
+                                task_name: "Timer Task",
+                                description: "View task"
+                            };
+                        }
+
                         $('#task-details-wrapper').empty().append(taskDetail);
                         $('#task_id').val(taskId);
+                        debugger;
                         $('#timer_table').DataTable({
                             dom: 'Bfrtip',
                             buttons: [
@@ -116,12 +296,14 @@
             $('#task-details-wrapper').on('click', '.start_session', function (e) {
                 e.preventDefault();
                 let taskId = $('#task_id').val();
+                let projectId = $('#project_id').val();
                 console.log(taskId);
 
                 $.post(render, {
                     action: 'start-session',
                     nonce: '{{ call_nonce('add-user-form') }}',
                     task_id: taskId,
+                    project_id: projectId,
                     user_id: '{{ user.id }}'
                 })
                     .done(function (data) {
@@ -131,6 +313,51 @@
                         $('#busy_spinner').removeClass('hidden');
                         getTask(taskId);
                     });
+            });
+
+            $('#task-details-wrapper').on('click', '.updateTaskBtn', function (e) {
+               console.log('updateTask');
+                addTask(e);
+            });
+            $('#task-details-wrapper').on('click', '.deleteSessionBtn', function (e) {
+               console.log('updateTask');
+                e.preventDefault();
+                let sessionId = $(this).closest('tr').attr('id');
+                let taskId = $('#task_id').val();
+                console.log(sessionId);
+
+                $.post(render, {
+                    action: 'delete-session',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    session_id: sessionId,
+                    user_id: '{{ user.id }}'
+                })
+                    .done(function (data) {
+                        debugger;
+                        getTask(taskId);
+                    });
+
+            });
+            $('#deleteTaskConfirmBtn').on('click', function (e) {
+               console.log('Delete Task');
+                e.preventDefault();
+                let taskId = $('#task_id').val();
+                let projectId = $('#project_id').val();
+
+                console.log(taskId);
+
+                $.post(render, {
+                    action: 'delete-task',
+                    nonce: '{{ call_nonce('add-user-form') }}',
+                    task_id: taskId,
+                    user_id: '{{ user.id }}'
+                })
+                    .done(function (data) {
+
+                        $('#deleteTaskModal').modal('hide');
+                        getProject(projectId);
+                    });
+
             });
 
             $('#task-details-wrapper').on('click', '.stop_session', function (e) {
@@ -167,10 +394,47 @@
             var modalList = modalTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+
+            $('#addTaskModalSubmit').on('click', function(e) {
+                addTask(e);
+            });
+
+            function addTask(e) {
+                var form = jQuery(e.target).closest('form');
+                // var form = $('#add-task-form');
+                var projectId = $('#project_id').val();
+                var formData = form.serialize() + '&project_id=' + projectId;
+                jQuery.ajax({
+                    type: "POST",
+                    url: render,
+                    data: formData, // serializes the form's elements.
+                    success: function (data) {
+                        debugger;
+                        var messageAlert = 'alert-' + data.type;
+                        var messageText = data.message;
+                        var alertBox = '<div class="alert ' + messageAlert + ' alert-dismissible fade show" role="alert">\n' +
+                            '  <strong>Notice! </strong> ' + messageText + '\n' +
+                            '  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>\n' +
+                            '</div>';
+                        if (messageAlert && messageText) {
+                            form.find('.messages').html(alertBox);
+                            form[0].reset();
+                        }
+                        if (data.type === 'success') {
+                            $('#addTaskModal').modal('hide');
+                            // reload();
+                            getTaskList(projectId);
+                            getTask(data.task);
+                        }
+
+                    }
+                });
+            }
             jQuery(document).submit(function (e) {
                 var form = jQuery(e.target).closest('form');
                 console.log(form);
                 var url = form.attr("action");
+
                 e.preventDefault();
                 jQuery.ajax({
                     type: "POST",
@@ -199,6 +463,18 @@
             {
                 let location = window.location;
                 window.location.replace(location);
+            }
+            $('#logout-btn').on('click', logout);
+            function logout(e)
+            {
+                const logoutFile = document.location.origin + "/include/workers/logout.php";
+                $.post(logoutFile, {
+                    filter: 'logout'
+                })
+                    .done(function (data) {
+                        var base = document.location.origin + "/";
+                        window.location.replace(base);
+                    });
             }
         });
     </script>

@@ -20,7 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $task = [];
         $filters = array(
             'task_id' => 'trim|sanitize_string',
+            'project_id' => 'trim|sanitize_string',
             'task_name' => 'trim|sanitize_string',
+            'project_name' => 'trim|sanitize_string',
             'description' => 'trim|sanitize_string',
             'task_status' => 'trim|sanitize_string',
             'action' => 'trim|sanitize_string',
@@ -32,7 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         );
         $rules = array(
             'task_id' => 'alpha_numeric|max_len,20',
+            'project_id' => 'alpha_numeric|max_len,20',
             'task_name' => 'alpha_numeric|max_len,20',
+            'project_name' => 'alpha_numeric|max_len,20',
             'description' => 'alpha_numeric|max_len,20',
             'task_status' => 'alpha_numeric|max_len,20',
             'created_by_user_id' => 'alpha_numeric|max_len,20|min_len,1',
@@ -51,17 +55,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($validated === false) {
             throw new \Exception($validator->get_readable_errors(true));
         }
-        $nonceUtil = $dashNonce->nonceInit();
-        $nonceTest = $dashNonce->verifyNonce($_POST['nonce'], 'add-user-form');
-        if ($nonceTest === false) {
-            throw new \Exception('Nonce Test Failed - please refresh the page to submit again');
-        }
+        // $nonceUtil = $dashNonce->nonceInit();
+        // $nonceTest = $dashNonce->verifyNonce($_POST['nonce'], 'add-user-form');
+
         $taskDetails = [];
         if($_POST['action'] === "add-task") {
-            $taskId = $tasks->save($_POST);
+            $task = $tasks->save($_POST);
         }
+        if($_POST['action'] === "add-project") {
+            $taskId = $tasks->addProject($_POST);
+        }
+
         if($_POST['action'] === "update-task") {
-            $taskId = $tasks->update($_POST);
+            $task = $tasks->update($_POST);
+        }
+        if($_POST['action'] === "update-project") {
+            $task = $tasks->updateProject($_POST);
+        }
+        if($_POST['action'] === "delete-session") {
+            $task = $tasks->deleteSession($_POST['session_id']);
+        }
+
+        if($_POST['action'] === "delete-task") {
+            $task = $tasks->deleteTask($_POST['task_id']);
+        }
+
+        if($_POST['action'] === "get-project") {
+            $projectDetails = $tasks->getProjectById($_POST['project_id']);
+            $taskDetails = $tasks->getProject($_POST['project_id']);
+            $values = array(
+                'project' => $projectDetails
+            );
+            $template = "timer_project.twig";
+            $task = $twig->render($template, $values);
+        }
+
+        if($_POST['action'] === "get-task-list") {
+            $values = array(
+                'tasks' => $tasks->getByStatus('open', $_POST['user_id'], $_POST['project_id'])
+            );
+            $template = "timer_tasklist.twig";
+            $task = $twig->render($template, $values);
         }
 
         if($_POST['action'] === "get-task") {
@@ -75,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if($_POST['action'] === "start-session") {
-            $task = $tasks->start($_POST['task_id'], $_POST['user_id']);
+            $task = $tasks->start($_POST['task_id'], $_POST['user_id'], $_POST['project_id']);
         }
         if($_POST['action'] === "stop-session") {
             $task = $tasks->stop($_POST['session_id'], $_POST['user_id']);

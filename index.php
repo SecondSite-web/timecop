@@ -4,13 +4,18 @@ use Dash\DashAuth;
 
 require_once __DIR__ .'/dash-loader.php';
 
-$dashAuth = new DashAuth($pdo);
-$user = $dashAuth->sessionUser();
+use PHPAuth\Auth as PHPAuth;
+use PHPAuth\Config as PHPAuthConfig;
+$config = new PHPAuthConfig($pdo);
+$auth = new PHPAuth($pdo, $config);
+
+
+
 $siteUrl = currentUrl();
 $timerUrl = $siteUrl."admin/dash/";
 $adminUrl = $siteUrl."admin/";
 
-if ($user === false) {
+if (!$auth->isLogged()) {
     $template = "user_login.twig";
 
     $values = array(
@@ -23,10 +28,7 @@ if ($user === false) {
     );
 
     echo $twig->render($template, $values);
-} else if($user['user_group'] !== "root") {
-    header("Location: ".$timerUrl."");
-    exit;
 } else {
-    header("Location: ".$adminUrl."");
+    header("Location: ".$timerUrl."");
     exit;
 }
